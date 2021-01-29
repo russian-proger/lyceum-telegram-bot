@@ -1,6 +1,11 @@
 const express = require('express');
 
-const telBotRoute = express.Router();
-telBotRoute.name = "tel-bot";
+const telBotRouter = express.Router();
+telBotRouter.name = "tel-bot";
 
-module.exports = telBotRoute;
+telBotRouter.all(/^.*/, (req, res) => {
+  console.log(req.path);
+  res.sendStatus(200);
+});
+
+module.exports = telBotRouter;

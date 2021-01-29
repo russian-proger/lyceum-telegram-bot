@@ -1,0 +1,37 @@
+.nav-bar
+  box-sizing: border-box
+  width: 250px
+  height: 100vh
+  padding-left: 30px
+  padding-top: 30px
+  display: flex
+  flex-direction: column
+  align-items: flex-start
+  border-right: 1px solid gray
+  clear: left
+  flex-shrink: 0
+
+  .nav-item,
+  .nav-title
+    width: 200px
+    
+  .nav-title
+    margin-top: 25px
+    font-weight: bold
+
+  .nav-item
+    color: #403F4C
+    box-sizing: border-box
+    height: 39px
+    font-size: 14px
+    padding: 8px
+    cursor: pointer
+
+    &:hover
+      background: #f9f9f9
+      border: 1px solid #dedede
+
+    &.active
+       font-weight: bold
+       background: #f9f9f9
+       border: 1px solid #dedede

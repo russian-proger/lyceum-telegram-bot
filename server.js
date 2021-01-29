@@ -2,6 +2,7 @@
 // | INCLUDING LIBRARIES
 // ====================================================
 // Native
+const fs = require('fs');
 const http = require('http');
 const https = require('https');
 
@@ -13,7 +14,7 @@ const expressStaticGzip = require("express-static-gzip");
 
 // Mine
 const adminRouter = require('./src/server/routes/admin/index.js');
-const apiRouter = require('./src/server/routes/admin/index.js');
+const apiRouter = require('./src/server/routes/api/index.js');
 const telBotExpress = require('./src/server/tel-bot/index.js');
 
 // ====================================================
@@ -26,7 +27,7 @@ const server = http.createServer(app);
 
 // Setting render engine
 app.set('view engine', 'pug');
-app.set('views', 'views');
+app.set('views', './src/views');
 
 // Using cookie
 app.use(cookieParser());
@@ -49,8 +50,8 @@ app.use(bodyParser.json());
 // ====================================================
 
 app.use('/admin', adminRouter);
-// app.use('/api', apiRouter);
-// app.use('/tel-bot', telBotExpress);
+app.use('/api', apiRouter);
+app.use('/tel-bot', telBotExpress);
 
 
 // Start listening

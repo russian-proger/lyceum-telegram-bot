@@ -7,7 +7,7 @@ module.exports = {
   devtool: 'eval-cheap-source-map',
   mode: 'development',
   entry: {
-    client: "./client.js"
+    client: "./src/client/index.js"
   },
   output: {
     path: path.join(__dirname, "/dist"),
