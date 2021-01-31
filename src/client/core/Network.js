@@ -1,7 +1,10 @@
 export const Methods = {
   GET_TOKEN: "getBotToken",
   SET_TOKEN: "setBotToken",
-}
+  SET_WEBHOOK: "setWebhook",
+  GET_WEBHOOK: "getWebhook",
+  DEL_WEBHOOK: "delWebhook"
+};
 
 const apiURL = location.href.slice(0, location.href.indexOf(DEFAULT_PATH)) + '/api/';
 

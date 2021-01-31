@@ -13,9 +13,9 @@ const cookieParser  = require('cookie-parser');
 const expressStaticGzip = require("express-static-gzip");
 
 // Mine
-const adminRouter = require('./src/server/routes/admin/index.js');
-const apiRouter = require('./src/server/routes/api/index.js');
-const telBotExpress = require('./src/server/tel-bot/index.js');
+const adminRouter = require('./src/server/routes/admin');
+const apiRouter = require('./src/server/routes/api');
+const telBotRouter = require('./src/server/tel-bot').router;
 
 // ====================================================
 // | INITIALIZING
@@ -51,7 +51,7 @@ app.use(bodyParser.json());
 
 app.use('/admin', adminRouter);
 app.use('/api', apiRouter);
-app.use('/tel-bot', telBotExpress);
+app.use('/tel-bot', telBotRouter);
 
 
 // Start listening
