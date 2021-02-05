@@ -3,7 +3,7 @@ const https = require('https');
 
 const config = require('./../config');
 const telBotRouter = require('./router');
-
+const BotTypes = require('./types');
 
 function callAPI(methodName, params={}) {
   return new Promise((resolve, reject) => {
@@ -28,7 +28,6 @@ function callAPI(methodName, params={}) {
       })
 
       res.on('end', () => {
-        console.log(response);
         resolve(JSON.parse(response));
       })
     });
@@ -52,6 +51,23 @@ function setWebhook(params) {
   return callAPI("setWebhook", params);
 }
 
+function getWebhook() {
+  return callAPI("getWebhookInfo");
+}
 
+function deleteWebhook() {
+  return callAPI("deleteWebhook");
+}
+
+/**
+ * @param {BotTypes.Update} updateQuery
+ */
+function handle(updateQuery) {
+  console.log(updateQuery);
+}
+
+module.exports.deleteWebhook = deleteWebhook;
+module.exports.getWebhook = getWebhook;
 module.exports.setWebhook = setWebhook;
+module.exports.handle = handle;
 module.exports.router = telBotRouter;

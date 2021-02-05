@@ -6,13 +6,16 @@ require('./styles/index.sass');
 
 // Core components
 import Page from './core/interfaces/Page';
+import { ToastContext } from './core/interfaces/Toast';
 import { NavPages, NavSections, defaultPage } from './core/Nav';
 
 // UI Components
 import Navigation from './components/Navigation/Navigation';
-import Header from './components/Header/Header'
+import Header from './components/Header/Header';
+import Toasts from './components/Toasts/Toasts';
 
 function App(props) {
+  const ToastsRef = React.useRef();
   const [state, setState] = React.useState({
     activePage: defaultPage ?? NavPages[0]
   });
@@ -33,16 +36,21 @@ function App(props) {
     window.onpopstate = (ev => setState({ ...state, activePage: NavPages[ev.state.pageIndex] }) || console.log(ev.state));
   }, []);
 
+  React.useLayoutEffect(() => {
+    console.log(ToastsRef);
+  }, []);
+
   const Content = state.activePage.component;
 
   return (
-    <React.Fragment>
+    <ToastContext.Provider value={ToastsRef}>
       <Navigation key="navigation" activePage={state.activePage} navigation={NavSections} onOpenPage={onOpenPage} />
       <div className="c-page">
         <Header />
         { Content && <Content /> }
       </div>
-    </React.Fragment>
+      <Toasts ref={ ToastsRef } />
+    </ToastContext.Provider>
   )
 }
 

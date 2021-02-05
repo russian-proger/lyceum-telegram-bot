@@ -55,4 +55,27 @@ adminRouter.post("/setWebhook", async (req, res) => {
   res.send(JSON.stringify(result));
 });
 
+adminRouter.post("/getWebhook", async (req, res) => {
+  const response = await Bot.getWebhook();
+  const result = ({
+    ok: response.ok,
+    result: response.result,
+    message: response.description
+  });
+
+  res.send(JSON.stringify(result));
+});
+
+adminRouter.post("/delWebhook", async (req, res) => {
+  const result = ({
+    ok: true,
+    message: ""
+  });
+
+  const response = await Bot.deleteWebhook();
+  result.message = response.description;
+
+  res.send(JSON.stringify(result));
+})
+
 module.exports = adminRouter;

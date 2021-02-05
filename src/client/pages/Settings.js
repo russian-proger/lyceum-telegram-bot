@@ -2,13 +2,26 @@ import React from 'react';
 
 import * as Network from "./../core/Network";
 
+import { Toast, ToastContext } from "./../core/interfaces/Toast";
+
 function valid(condition) {
   return condition == null ? "" : (condition ? "is-valid" : "is-invalid");
 }
 
+/**
+ * @param {Number} timestamp
+ */
+function getDate(timestamp = 0) {
+  var d = new Date(timestamp);
+  return `${d.toLocaleDateString()} ${d.toLocaleTimeString()}`;
+}
+
 export default function Settings(props) {
+  const Toasts = React.useContext(ToastContext).current;
+
   const tokenRef = React.useRef();
   const webhookRef = React.useRef();
+
   const [state, setState] = React.useState({
     fetching: false,
 
@@ -35,22 +48,46 @@ export default function Settings(props) {
   }
 
   function onDeleteWebhook() {
-
+    Network.call(Network.Methods.DEL_WEBHOOK).then(res => {
+      var toast = new Toast("Webhook settings", res.message);
+      setState({...state, webhookInfo: null});
+      Toasts.add(toast);
+    })
   }
 
   function onSetWebhook() {
     Network.call(Network.Methods.SET_WEBHOOK, { url: webhookRef.current.value }).then(res => {
-      console.log(res);
+      const toast = new Toast("Webhook settings", res.message);
+      Toasts.add(toast);
+
+      if (state.webhookInfo !== null && state.webhookInfo.URL != webhookRef.current.value) {
+        onGetWebhook();
+      }
 
       setState({ ...state,
-        webhookInfo: state.webhookInfo == null || !res.ok ? state.webhookInfo : { ...state.webhookInfo, url: webhookRef.current.value },
         webhookInputStatus: { valid: res.ok, message: res.message }
       })
     });
   }
 
   function onGetWebhook() {
+    Network.call(Network.Methods.GET_WEBHOOK).then(res => {
+      var toast = new Toast("Webhook settings", `Информация успешно ${state.webhookInfo === null ? 'получена' : 'обновлена'}`, 10);
 
+      if (res.ok) {
+        setState({ ...state, webhookInfo: {
+          "URL": res.result.url.replace(/^$/, 'None'),
+          "Last Error Message": res.result.last_error_message ?? "None",
+          "Last Error Date": res.result.last_error_date > 0 ? getDate(res.result.last_error_date * 1000) : "None",
+          "Max Connections": res.result.max_connections ?? "None",
+          "Allowed Updates": (res.result.allowed_updates ?? []).join(', ').replace(/^$/, 'None')
+        } });
+      } else {
+        toast.body = "Во время загрузки информации произшла ошибка";
+      }
+
+      Toasts.add(toast);
+    })
   }
 
   const loading = state.fetching || !state.botToken;
@@ -71,21 +108,9 @@ export default function Settings(props) {
               }
             </div>
 
-            <p className="fs-6"><span className="text-nowrap">Текущий токен:</span>
-              {state.botToken && 
-                <span className="fw-bold text-nowrap">{ state.isTokenHidden ? `${state.botToken.slice(0, 3)}...${state.botToken.slice(-3)}` : ` ${state.botToken}` }</span>
-              }
-            </p>
-
-            <div className="d-flex">
-              <button key="token-hide" type="button"
-                className={["d-inline btn me-2", (state.isTokenHidden ? "btn-primary" : "btn-light")].join(' ')}
-                onClick={() => setState({...state, isTokenHidden: !state.isTokenHidden})}>{ state.isTokenHidden ? "Показать токен" : "Скрыть токен" }</button>
-            </div>
-
             {/* Token writing */}
-            <p className="h4 mb-3 mt-5">Ввод существующего токена</p>
-            <div className="input-group mb-3">
+            <p className="h4 mb-3">Ввод существующего токена</p>
+            <div className="input-group mb-5">
               <span className="input-group-text">Token</span>
               <input ref={tokenRef} type="text" className={["form-control", valid(state.tokenInputStatus.valid)].join(' ')}
                 aria-label="Username" aria-describedby="basic-addon1" />
@@ -95,6 +120,22 @@ export default function Settings(props) {
                 {state.tokenInputStatus.message}
               </div>
             </div>
+
+            {state.botToken &&
+            <>
+              <p className="h4 mb-3">Текущий токен</p>
+              <div className="input-group mb-2">
+                <span className="input-group-text">Token</span>
+                <input ref={tokenRef} type="text" className="form-control" readOnly
+                  aria-label="Username" aria-describedby="basic-addon1" value={state.isTokenHidden ? ` ${state.botToken.slice(0, 3)}...${state.botToken.slice(-3)}` : ` ${state.botToken}`} />
+                <button type="button" className="btn btn-primary"
+                  onClick={ () => setState({...state, isTokenHidden: !state.isTokenHidden}) }>{ state.isTokenHidden ? "Показать" : "Скрыть" }</button>
+                <div className="invalid-feedback">
+                  {state.tokenInputStatus.message}
+                </div>
+              </div>
+            </>
+            }
           </div>
         </div>
 
@@ -103,8 +144,8 @@ export default function Settings(props) {
           <div className="card">
             <p className="h3 md-3">Telegram Webhook</p>
 
-            <p className="h4 mb-3 mt-3">Установка нового Webhook</p>
-            <form className="mb-4">
+            <p className="h4 mb-3 mt-2">Установка нового Webhook</p>
+            <form className="mb-3">
               <div className="input-group mb-3">
                 <span className="input-group-text">URL</span>
                 <input ref={webhookRef} type="text" className={["form-control", valid(state.webhookInputStatus.valid)].join(' ')}
@@ -118,11 +159,29 @@ export default function Settings(props) {
             </form>
 
             <p className="h4 mb-3 mt-3">Текущий Webhook</p>
-            <div className="mb-5">
-              <button type="button" className="btn btn-primary" onClick={ onGetWebhook }>Загрузить информацию</button>
+            <div className="mb-2">
+              <button type="button" className="btn btn-primary" onClick={ onGetWebhook }>{state.webhookInfo === null ? 'Загрузить' : 'Обновить'} информацию</button>
             </div>
+            { state.webhookInfo &&
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th scope="col">Property</th>
+                    <th scope="col">Value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.entries(state.webhookInfo).map((v, i) => (
+                    <tr key={i}>
+                      <td>{v[0]}</td>
+                      <td>{v[1]}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            }
 
-            <form>
+            <form className="mb-2m mt-4">
               <button type="button" className="btn btn-secondary"
                 onClick={ onDeleteWebhook }>Удалить текущий Webhook</button>
             </form>
