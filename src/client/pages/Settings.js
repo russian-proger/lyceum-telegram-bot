@@ -166,8 +166,8 @@ export default function Settings(props) {
               <table className="table">
                 <thead>
                   <tr>
-                    <th scope="col">Property</th>
-                    <th scope="col">Value</th>
+                    <th scope="col">Свойство</th>
+                    <th scope="col">Значение</th>
                   </tr>
                 </thead>
                 <tbody>

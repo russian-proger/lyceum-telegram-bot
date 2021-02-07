@@ -8,6 +8,7 @@
     "build:dev": "webpack  --env dev  --progress",
     "build:prod": "webpack --env prod --progress --profile",
     "build:server": "tsc --project ./src/server",
+    "watch:server": "ts-node-dev src/server/index.ts",
     "node:server": "tsc --project ./src/server & echo Compilation was completed & node ./src/server/build/"
   },
   "author": "russian_proger",

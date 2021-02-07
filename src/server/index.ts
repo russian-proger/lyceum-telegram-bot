@@ -2,9 +2,9 @@
 // | INCLUDING LIBRARIES
 // ====================================================
 // Native
-import fs from 'fs';
-import express from 'express';
-import http    from 'http';
+var fs      = require('fs');
+var express = require('express');
+var http    = require('http');
 
 // Additional
 var bodyParser        = require('body-parser');

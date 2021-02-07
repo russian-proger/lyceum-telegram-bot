@@ -45,7 +45,6 @@ apiRouter.post("/setWebhook", async (req:any, res:any) => {
     result.message = "URL is invalid";
   } else {
     const response:any = await Bot.setWebhook({ url: req.body.url });
-    console.log(response);
     result.ok = true;
     result.result = response.ok;
     result.message = response.description;

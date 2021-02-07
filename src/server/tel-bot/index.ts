@@ -57,20 +57,48 @@ export function deleteWebhook() {
   return callAPI("deleteWebhook");
 }
 
-/** @param {BotTypes.SendMessage} params */
-export function sendMessage(params:any) {
+export function sendMessage(params:BotTypes.SendMessage) {
   return callAPI("sendMessage", params);
+}
+
+export function editMessageReplyMarkup(params:BotTypes.EditMessageReplyMarkup) {
+  return callAPI("editMessageReplyMarkup", params);
+}
+
+export function answerCallbackQuery(params:BotTypes.AnswerCallbackQuery) {
+  return callAPI("answerCallbackQuery", params);
 }
 
 /**
  * @param {BotTypes.Update} updateQuery
  */
-export function handle(updateQuery:any) {
-  console.log(updateQuery);
+export function handle(updateQuery:BotTypes.Update) {
+  if (updateQuery.message && updateQuery.message.chat) {
+    var message:BotTypes.SendMessage = {
+      chat_id: updateQuery.message.chat.id,
+      text: "Answer"
+    };
+    message.reply_markup = {
+      remove_keyboard: true,
+      inline_keyboard: [[{text: "button 1", callback_data: "1"}]]
+    };
+    sendMessage(message);
+  } else if (updateQuery.callback_query && updateQuery.callback_query.message && updateQuery.callback_query.data) {
+    var data:number = parseInt(updateQuery.callback_query.data);
+    if (isNaN(data) || !data) data = 0;
 
-  var message:BotTypes.SendMessage = new Object();
-  message.text = "Hello!";
-  message.chat_id = updateQuery.message.chat.id;
+    var query:BotTypes.EditMessageReplyMarkup = {
+      chat_id: updateQuery.callback_query.message.chat.id,
+      message_id: updateQuery.callback_query.message.message_id,
+      reply_markup: {
+        inline_keyboard: [[{ text: `button ${data + 1}`, callback_data: `${data + 1}` }]]
+      }
+    };
 
-  sendMessage(message);
+    var query2:BotTypes.AnswerCallbackQuery = {
+      callback_query_id: updateQuery.callback_query.id
+    };
+    answerCallbackQuery(query2);
+    editMessageReplyMarkup(query);
+  }
 }

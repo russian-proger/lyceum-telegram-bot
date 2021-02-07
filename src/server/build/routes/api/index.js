@@ -71,7 +71,6 @@ apiRouter.post("/setWebhook", (req, res) => __awaiter(void 0, void 0, void 0, fu
     }
     else {
         const response = yield Bot.setWebhook({ url: req.body.url });
-        console.log(response);
         result.ok = true;
         result.result = response.ok;
         result.message = response.description;

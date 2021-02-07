@@ -3,8 +3,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-const http_1 = __importDefault(require("http"));
+// ====================================================
+// | INCLUDING LIBRARIES
+// ====================================================
+// Native
+var fs = require('fs');
+var express = require('express');
+var http = require('http');
 // Additional
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
@@ -17,8 +22,8 @@ const router_1 = __importDefault(require("./tel-bot/router"));
 // | INITIALIZING
 // ====================================================
 // Constants declaration
-const app = express_1.default();
-const server = http_1.default.createServer(app);
+const app = express();
+const server = http.createServer(app);
 // Setting render engine
 app.set('view engine', 'pug');
 app.set('views', './src/server/views');
@@ -27,9 +32,9 @@ app.use(cookieParser());
 app.set('etag', false);
 app.disable('x-powered-by');
 // Opening virtual dirs
-app.use('/assets', expressStaticGzip(('./assets')));
-app.use('/static', expressStaticGzip(('./static')));
-app.use('/dist', expressStaticGzip(('./dist'), {}));
+app.use('/assets', expressStaticGzip('./assets'));
+app.use('/static', expressStaticGzip('./static'));
+app.use('/dist', expressStaticGzip('./dist', {}));
 // Using body-parser
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());

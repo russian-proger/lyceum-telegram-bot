@@ -19,7 +19,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.handle = exports.sendMessage = exports.deleteWebhook = exports.getWebhook = exports.setWebhook = void 0;
+exports.handle = exports.answerCallbackQuery = exports.editMessageReplyMarkup = exports.sendMessage = exports.deleteWebhook = exports.getWebhook = exports.setWebhook = void 0;
 var https = require('https');
 const Config = __importStar(require("../config"));
 function callAPI(methodName, params = {}) {
@@ -71,19 +71,49 @@ function deleteWebhook() {
     return callAPI("deleteWebhook");
 }
 exports.deleteWebhook = deleteWebhook;
-/** @param {BotTypes.SendMessage} params */
 function sendMessage(params) {
     return callAPI("sendMessage", params);
 }
 exports.sendMessage = sendMessage;
+function editMessageReplyMarkup(params) {
+    return callAPI("editMessageReplyMarkup", params);
+}
+exports.editMessageReplyMarkup = editMessageReplyMarkup;
+function answerCallbackQuery(params) {
+    return callAPI("answerCallbackQuery", params);
+}
+exports.answerCallbackQuery = answerCallbackQuery;
 /**
  * @param {BotTypes.Update} updateQuery
  */
 function handle(updateQuery) {
-    console.log(updateQuery);
-    var message = new Object();
-    message.text = "Hello!";
-    message.chat_id = updateQuery.message.chat.id;
-    sendMessage(message);
+    if (updateQuery.message && updateQuery.message.chat) {
+        var message = {
+            chat_id: updateQuery.message.chat.id,
+            text: "Answer"
+        };
+        message.reply_markup = {
+            remove_keyboard: true,
+            inline_keyboard: [[{ text: "button 1", callback_data: "1" }]]
+        };
+        sendMessage(message);
+    }
+    else if (updateQuery.callback_query && updateQuery.callback_query.message && updateQuery.callback_query.data) {
+        var data = parseInt(updateQuery.callback_query.data);
+        if (isNaN(data) || !data)
+            data = 0;
+        var query = {
+            chat_id: updateQuery.callback_query.message.chat.id,
+            message_id: updateQuery.callback_query.message.message_id,
+            reply_markup: {
+                inline_keyboard: [[{ text: `button ${data + 1}`, callback_data: `${data + 1}` }]]
+            }
+        };
+        var query2 = {
+            callback_query_id: updateQuery.callback_query.id
+        };
+        answerCallbackQuery(query2);
+        editMessageReplyMarkup(query);
+    }
 }
 exports.handle = handle;
