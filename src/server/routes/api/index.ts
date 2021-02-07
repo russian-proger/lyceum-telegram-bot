@@ -1,21 +1,19 @@
-const express = require('express');
-const config = require('../../config');
+var express = require('express');
 
-const Bot = require('./../../tel-bot');
+import * as Config from '../../config';
+import * as Bot    from './../../tel-bot';
 
-const adminRouter = express.Router();
+const apiRouter = express.Router();
 
-adminRouter.name = "api-router";
-
-adminRouter.post("/getBotToken", (req, res) => {
+apiRouter.post("/getBotToken", (req:any, res:any) => {
   const result = {
     ok: true,
-    response: config.env().bot.token
+    response: Config.env().bot.token
   }
   res.send(JSON.stringify(result));
 });
 
-adminRouter.post("/setBotToken", (req, res) => {
+apiRouter.post("/setBotToken", (req:any, res:any) => {
   const result = ({
     ok: false,
     message: ""
@@ -26,18 +24,19 @@ adminRouter.post("/setBotToken", (req, res) => {
   } else if (!/^\d+:[\d\w_-]+$/.test(req.body.token)) {
     result.message = "Token is invalid"
   } else {
-    config.env().bot.token = req.body.token;
-    config.saveEnv();
+    Config.env().bot.token = req.body.token;
+    Config.saveEnv();
     result.ok = true;
   }
 
   res.send(JSON.stringify(result));
 })
 
-adminRouter.post("/setWebhook", async (req, res) => {
+apiRouter.post("/setWebhook", async (req:any, res:any) => {
   const result = ({
     ok: false,
-    message: ""
+    message: "",
+    result: null
   });
 
   if (!req.body.url) {
@@ -45,7 +44,7 @@ adminRouter.post("/setWebhook", async (req, res) => {
   } else if (!/^https:\/\/.+\.(com|space|ru|site|org)(:\d{1,5})?/.test(req.body.url)) {
     result.message = "URL is invalid";
   } else {
-    const response = await Bot.setWebhook({ url: req.body.url });
+    const response:any = await Bot.setWebhook({ url: req.body.url });
     console.log(response);
     result.ok = true;
     result.result = response.ok;
@@ -55,8 +54,8 @@ adminRouter.post("/setWebhook", async (req, res) => {
   res.send(JSON.stringify(result));
 });
 
-adminRouter.post("/getWebhook", async (req, res) => {
-  const response = await Bot.getWebhook();
+apiRouter.post("/getWebhook", async (req:any, res:any) => {
+  const response:any = await Bot.getWebhook();
   const result = ({
     ok: response.ok,
     result: response.result,
@@ -66,16 +65,16 @@ adminRouter.post("/getWebhook", async (req, res) => {
   res.send(JSON.stringify(result));
 });
 
-adminRouter.post("/delWebhook", async (req, res) => {
+apiRouter.post("/delWebhook", async (req:any, res:any) => {
   const result = ({
     ok: true,
     message: ""
   });
 
-  const response = await Bot.deleteWebhook();
+  const response:any = await Bot.deleteWebhook();
   result.message = response.description;
 
   res.send(JSON.stringify(result));
 })
 
-module.exports = adminRouter;
+export default apiRouter;

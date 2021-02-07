@@ -1,18 +1,16 @@
-const express = require('express');
-const https = require('https');
+var https = require('https');
 
-const config = require('./../config');
-const telBotRouter = require('./router');
-const BotTypes = require('./types');
+import * as Config from '../config';
+import * as BotTypes from './types';
 
-function callAPI(methodName, params={}) {
+function callAPI(methodName:any, params:any={}) {
   return new Promise((resolve, reject) => {
     const data = JSON.stringify(params);
     /** @type {https.RequestOptions} */
     const options = ({
       hostname: 'api.telegram.org',
       protocol: 'https:',
-      path: `/bot${config.env().bot.token}/${methodName}`,
+      path: `/bot${Config.env().bot.token}/${methodName}`,
       port: 443,
       method: 'POST',
       headers: {
@@ -21,9 +19,9 @@ function callAPI(methodName, params={}) {
       }
     });
 
-    const req = https.request(options, res => {
+    const req = https.request(options, (res:any) => {
       var response = "";
-      res.on('data', d => {
+      res.on('data', (d:any) => {
         response += d;
       })
 
@@ -32,7 +30,7 @@ function callAPI(methodName, params={}) {
       })
     });
 
-    req.on('error', error => {
+    req.on('error', (error:any) => {
       console.error(error);
       reject(error);
     });
@@ -47,27 +45,32 @@ function callAPI(methodName, params={}) {
  * @param {Object} params
  * @param {String} params.url 
  */
-function setWebhook(params) {
+export function setWebhook(params:any) {
   return callAPI("setWebhook", params);
 }
 
-function getWebhook() {
+export function getWebhook() {
   return callAPI("getWebhookInfo");
 }
 
-function deleteWebhook() {
+export function deleteWebhook() {
   return callAPI("deleteWebhook");
+}
+
+/** @param {BotTypes.SendMessage} params */
+export function sendMessage(params:any) {
+  return callAPI("sendMessage", params);
 }
 
 /**
  * @param {BotTypes.Update} updateQuery
  */
-function handle(updateQuery) {
+export function handle(updateQuery:any) {
   console.log(updateQuery);
-}
 
-module.exports.deleteWebhook = deleteWebhook;
-module.exports.getWebhook = getWebhook;
-module.exports.setWebhook = setWebhook;
-module.exports.handle = handle;
-module.exports.router = telBotRouter;
+  var message:BotTypes.SendMessage = new Object();
+  message.text = "Hello!";
+  message.chat_id = updateQuery.message.chat.id;
+
+  sendMessage(message);
+}
