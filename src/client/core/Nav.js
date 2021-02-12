@@ -3,7 +3,8 @@ import Page from './interfaces/Page';
 import Section from './interfaces/Section';
 
 // Pages
-import SettingsComponent from './../pages/Settings';
+import SettingsPage from './../pages/Settings';
+import DatabasePage from './../pages/Database';
 
 /**
  * @param {PopStateEvent} event
@@ -26,13 +27,13 @@ export const NavSections = [
  * @type {Array<Page>}
  */
 export const NavPages = [
-  new Page('system_monitor',  "Системный монитор", null,              0),
-  new Page('traffic_monitor', "Монитор трафика",   null,              0),
-  new Page('journal',         "Журнал сообщений",  null,              0),
-  new Page('settings',        "Общие настройки",   SettingsComponent, 1),
-  new Page('database',        "База Данных",       null,              1),
-  new Page('mailing',         "Рассылка",          null,              1),
-  new Page('user_messages',   "Сообщения",         null,              1),
+  new Page('system_monitor',  "Системный монитор", null,           0),
+  new Page('traffic_monitor', "Монитор трафика",   null,           0),
+  new Page('journal',         "Журнал сообщений",  null,           0),
+  new Page('settings',        "Общие настройки",   SettingsPage,   1),
+  new Page('database',        "База Данных",       DatabasePage,   1),
+  new Page('mailing',         "Рассылка",          null,           1),
+  new Page('user_messages',   "Сообщения",         null,           1),
 ];
 
 export const defaultPage = NavPages.find(page => '/' + page.name == location.pathname.replace(DEFAULT_PATH, ""));

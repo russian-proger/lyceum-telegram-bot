@@ -28,9 +28,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var express = require('express');
+const express = __importStar(require("express"));
 const Config = __importStar(require("../../config"));
 const Bot = __importStar(require("./../../tel-bot"));
+const DB = __importStar(require("./../../database"));
 const apiRouter = express.Router();
 apiRouter.post("/getBotToken", (req, res) => {
     const result = {
@@ -93,6 +94,52 @@ apiRouter.post("/delWebhook", (req, res) => __awaiter(void 0, void 0, void 0, fu
     });
     const response = yield Bot.deleteWebhook();
     result.message = response.description;
+    res.send(JSON.stringify(result));
+}));
+apiRouter.post('/getDatabaseState', (req, res) => {
+    const result = ({
+        ok: true,
+        result: DB.isConnected()
+    });
+    res.send(JSON.stringify(result));
+});
+apiRouter.post('/getDatabaseConfig', (req, res) => {
+    const result = ({
+        ok: true,
+        result: Config.env().mysql
+    });
+    res.send(JSON.stringify(result));
+});
+apiRouter.post('/reconnectDatabase', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = ({
+        ok: true,
+        result: yield DB.connectDB()
+    });
+    res.send(JSON.stringify(result));
+}));
+apiRouter.post('/setDataBaseConfig', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b, _c, _d, _e;
+    const result = ({
+        ok: true,
+        result: {}
+    });
+    if (!req.body.config) {
+        result.ok = false;
+        return res.send(JSON.stringify(result));
+    }
+    // Текущая конфигурация
+    let env = Config.env();
+    // Обновление свойств
+    env.mysql.host = (_a = req.body.config.host) !== null && _a !== void 0 ? _a : env.mysql.host;
+    env.mysql.login = (_b = req.body.config.login) !== null && _b !== void 0 ? _b : env.mysql.login;
+    env.mysql.password = (_c = req.body.config.password) !== null && _c !== void 0 ? _c : env.mysql.password;
+    env.mysql.port = (_d = req.body.config.port) !== null && _d !== void 0 ? _d : env.mysql.port;
+    env.mysql.database = (_e = req.body.config.database) !== null && _e !== void 0 ? _e : env.mysql.database;
+    // Сохранение новой конфигурации
+    Config.saveEnv(env);
+    result.result = {
+        connected: yield DB.connectDB()
+    };
     res.send(JSON.stringify(result));
 }));
 exports.default = apiRouter;

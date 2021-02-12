@@ -73,6 +73,7 @@ export function answerCallbackQuery(params:BotTypes.AnswerCallbackQuery) {
  * @param {BotTypes.Update} updateQuery
  */
 export function handle(updateQuery:BotTypes.Update) {
+  console.log(updateQuery);
   if (updateQuery.message && updateQuery.message.chat) {
     var message:BotTypes.SendMessage = {
       chat_id: updateQuery.message.chat.id,

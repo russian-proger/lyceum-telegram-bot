@@ -18,6 +18,7 @@ var expressStaticGzip = require("express-static-gzip");
 const admin_1 = __importDefault(require("./routes/admin"));
 const api_1 = __importDefault(require("./routes/api"));
 const router_1 = __importDefault(require("./tel-bot/router"));
+const database_1 = require("./database");
 // ====================================================
 // | INITIALIZING
 // ====================================================
@@ -38,6 +39,7 @@ app.use('/dist', expressStaticGzip('./dist', {}));
 // Using body-parser
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+database_1.connectDB();
 // ====================================================
 // | ROUTING
 // ====================================================

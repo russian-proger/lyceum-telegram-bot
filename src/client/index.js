@@ -6,8 +6,9 @@ require('./styles/index.sass');
 
 // Core components
 import Page from './core/interfaces/Page';
-import { ToastContext } from './core/interfaces/Toast';
+import { Toast, ToastContext } from './core/interfaces/Toast';
 import { NavPages, NavSections, defaultPage } from './core/Nav';
+import { setOnError } from './core/Network';
 
 // UI Components
 import Navigation from './components/Navigation/Navigation';
@@ -34,10 +35,9 @@ function App(props) {
   React.useEffect(() => {
     document.title = state.activePage.title;
     window.onpopstate = (ev => setState({ ...state, activePage: NavPages[ev.state.pageIndex] }) || console.log(ev.state));
-  }, []);
-
-  React.useLayoutEffect(() => {
-    console.log(ToastsRef);
+    setOnError(message => {
+      ToastsRef.current.add(new Toast("Network", message));
+    });
   }, []);
 
   const Content = state.activePage.component;

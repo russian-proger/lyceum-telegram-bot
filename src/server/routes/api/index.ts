@@ -1,9 +1,11 @@
-var express = require('express');
+import * as express from 'express';
 
 import * as Config from '../../config';
 import * as Bot    from './../../tel-bot';
+import * as DB     from './../../database';
+import { config } from 'process';
 
-const apiRouter = express.Router();
+const apiRouter:express.Router = express.Router();
 
 apiRouter.post("/getBotToken", (req:any, res:any) => {
   const result = {
@@ -72,6 +74,64 @@ apiRouter.post("/delWebhook", async (req:any, res:any) => {
 
   const response:any = await Bot.deleteWebhook();
   result.message = response.description;
+
+  res.send(JSON.stringify(result));
+});
+
+apiRouter.post('/getDatabaseState', (req, res) => {
+  const result = ({
+    ok: true,
+    result: DB.isConnected()
+  });
+
+  res.send(JSON.stringify(result));
+});
+
+apiRouter.post('/getDatabaseConfig', (req, res) => {
+  const result = ({
+    ok: true,
+    result: Config.env().mysql
+  });
+
+  res.send(JSON.stringify(result));
+});
+
+apiRouter.post('/reconnectDatabase', async (req, res) => {
+  const result = ({
+    ok: true,
+    result: await DB.connectDB()
+  });
+
+  res.send(JSON.stringify(result));
+})
+
+apiRouter.post('/setDataBaseConfig', async (req, res) => {
+  const result = ({
+    ok: true,
+    result: {}
+  });
+
+  if (!req.body.config) {
+    result.ok = false;
+    return res.send(JSON.stringify(result));
+  }
+
+  // Текущая конфигурация
+  let env = Config.env();
+
+  // Обновление свойств
+  env.mysql.host      = req.body.config.host      ?? env.mysql.host;
+  env.mysql.login     = req.body.config.login     ?? env.mysql.login;
+  env.mysql.password  = req.body.config.password  ?? env.mysql.password;
+  env.mysql.port      = req.body.config.port      ?? env.mysql.port;
+  env.mysql.database  = req.body.config.database  ?? env.mysql.database;
+
+  // Сохранение новой конфигурации
+  Config.saveEnv(env);
+
+  result.result = {
+    connected: await DB.connectDB()
+  };
 
   res.send(JSON.stringify(result));
 })

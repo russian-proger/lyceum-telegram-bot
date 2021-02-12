@@ -15,7 +15,7 @@ var expressStaticGzip = require("express-static-gzip");
 import adminRouter  from './routes/admin';
 import apiRouter    from './routes/api';
 import telBotRouter from './tel-bot/router';
-
+import { connectDB } from './database';
 
 // ====================================================
 // | INITIALIZING
@@ -43,6 +43,7 @@ app.use('/dist',   expressStaticGzip('./dist', {}));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+connectDB();
 
 // ====================================================
 // | ROUTING
