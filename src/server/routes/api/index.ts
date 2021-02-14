@@ -3,7 +3,8 @@ import * as express from 'express';
 import * as Config from '../../config';
 import * as Bot    from './../../tel-bot';
 import * as DB     from './../../database';
-import { config } from 'process';
+
+import Tables from './../../database/tables';
 
 const apiRouter:express.Router = express.Router();
 

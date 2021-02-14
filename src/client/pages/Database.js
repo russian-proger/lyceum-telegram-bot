@@ -11,7 +11,8 @@ export default function Database() {
   const [state, setState] = React.useState({
     connected: null,
     is_config_edited: true,
-    config: null
+    config: null,
+    tables: null
   });
 
   React.useEffect(() => {
@@ -67,11 +68,26 @@ export default function Database() {
         </div>
         <div className="col-md-6">
           <div className="card">
-
+            <span className="h3 mb-4">База Данных</span>
+            <DBTables gState={state} />
           </div>
         </div>
       </div>
     </div>
+  )
+}
+
+/**
+ * Компонент для работы с таблицами
+ * @param {{
+ *  gState: {
+ *    
+ *  }
+ * }} props 
+ */
+function DBTables(props) {
+  return (
+    <React.Fragment></React.Fragment>
   )
 }
 
@@ -102,7 +118,9 @@ function DBConfig(props) {
 
   if (!props.config) {
     return (
-      <React.Fragment />
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
     );
   }
 
